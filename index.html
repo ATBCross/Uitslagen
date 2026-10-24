@@ -174,6 +174,10 @@ tr.scheiding td { background: var(--bg); font-size: 12px; font-weight: 700; lett
 .link { all: unset; cursor: pointer; font-weight: 600 }
 .link:hover, .link:focus-visible { color: var(--red) }
 td .meta { color: var(--muted); font-size: 12px; font-weight: 400 }
+table.rondes td.ronde { color: var(--muted); font-size: 13px; padding-inline: 7px }
+table.rondes td.tijd { font-weight: 700 }
+@media (max-width: 560px) { table.rondes .nrcol, table.rondes .catcol { display: none } table.rondes td, table.rondes th { padding-inline: 6px } }
+.snelst { background: var(--plate); color: var(--plate-ink); border-radius: 4px; padding: 1px 5px; font-weight: 700 }
 @media (max-width: 560px) { table.stand .nrcol { display: none } table.stand td, table.stand th { padding-inline: 6px } td.naamcel { min-width: 130px } }
 </style>
 </head>
@@ -232,9 +236,9 @@ function verwerk(index, seizoensData, klassementen) {
   }
   DATA = { races, rows };
   KLAS = klassementen;
-  rijen = rows.map(([w, bib, naam, kl, club, cat, pl, ro, tijd]) => {
+  rijen = rows.map(([w, bib, naam, kl, club, cat, pl, ro, tijd, rt]) => {
     const race = races[w];
-    return { race, w, bib, naam, kl, club, cat, pl, ro, tijd, dag: cat === 'DAG', key: sleutel(naam), s: race.s, voorlopig: (race.klassen[kl] || {}).status === 'voorlopig' };
+    return { race, w, bib, naam, kl, club, cat, pl, ro, tijd, rt: Array.isArray(rt) ? rt : [], dag: cat === 'DAG', key: sleutel(naam), s: race.s, voorlopig: (race.klassen[kl] || {}).status === 'voorlopig' };
   });
   renners = new Map();
   for (const r of rijen) {
@@ -381,10 +385,25 @@ function tekenWedstrijden() {
       <div><div class="eyebrow">${rnr(w.r)} · ${datum(w.d)}</div><h2>${esc(w.n)}${w.u ? '' : ' · inschrijvingen'}</h2>${w.u ? '' : '<p class="sub">Van deze wedstrijd is geen uitslag beschikbaar, alleen de lijst van ingeschreven renners.</p>'}</div>
       <div class="klassen" role="group" aria-label="Klasse">${groepen.map(([k, v]) => `<button type="button" data-k="${esc(k)}" aria-pressed="${k === st.klasse}">${esc(k)} <small>${v.length}</small>${(w.klassen[k] || {}).status === 'voorlopig' ? '<i class="stip" title="voorlopig"></i>' : ''}</button>`).join('')}</div>
       ${kst.status === 'voorlopig' ? `<div class="melding"><b>Voorlopige uitslag</b> (${uur(kst.tijd)}). Correcties van de wedstrijddag (nummerwissels, handmatige doorkomsten) volgen in de definitieve uitslag.</div>` : ''}
-      <div class="tabel-wrap"><table><thead><tr><th>Pl.</th><th>Nr.</th><th>Naam</th><th>Club</th><th>Cat.</th><th class="r">Rondes</th><th class="r">Tijd</th></tr></thead><tbody>${
-        rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td><td>${plate(r.bib, r.dag)}</td>
-          <td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button></td><td class="club">${esc(r.club)}</td>
-          <td>${r.dag ? '<span class="chip dag">dag</span>' : esc(r.cat)}</td><td class="r">${r.ro || '–'}</td><td class="r">${esc(r.tijd) || '–'}</td></tr>`).join('')}</tbody></table></div></div>`;
+      ${tabelUitslag(rs)}</div>`;
+}
+const sec = t => { if (!t) return Infinity; return t.split(':').reduce((a, x) => a * 60 + (+x || 0), 0); };
+function tabelUitslag(rs) {
+  const nR = Math.max(0, ...rs.map(r => r.rt.length));
+  if (!nR) return `<div class="tabel-wrap"><table><thead><tr><th>Pl.</th><th>Nr.</th><th>Naam</th><th>Club</th><th>Cat.</th><th class="r">Rondes</th><th class="r">Tijd</th></tr></thead><tbody>${
+    rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td><td>${plate(r.bib, r.dag)}</td>
+      <td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button></td><td class="club">${esc(r.club)}</td>
+      <td>${r.dag ? '<span class="chip dag">dag</span>' : esc(r.cat)}</td><td class="r">${r.ro || '–'}</td><td class="r">${esc(r.tijd) || '–'}</td></tr>`).join('')}</tbody></table></div>`;
+  // met rondetijden: club onder de naam, een kolom per ronde; snelste ronde van de klasse in het geel
+  const snelst = Math.min(...rs.flatMap(r => r.rt.map(sec)));
+  return `<p class="uitleg">Rondetijden per renner. <span class="snelst">Geel</span> = snelste ronde van de klasse. Schuif de tabel opzij om alle rondes te zien.</p>
+    <div class="tabel-wrap"><table class="rondes"><thead><tr><th>Pl.</th><th class="nrcol">Nr.</th><th>Naam</th><th class="catcol">Cat.</th>${
+    Array.from({ length: nR }, (_, i) => `<th class="r">R${i + 1}</th>`).join('')}<th class="r">Tijd</th></tr></thead><tbody>${
+    rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td><td class="nrcol">${plate(r.bib, r.dag)}</td>
+      <td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button>${r.club ? `<br><span class="meta">${esc(r.club)}</span>` : ''}</td>
+      <td class="catcol">${r.dag ? '<span class="chip dag">dag</span>' : esc(r.cat)}</td>${
+      Array.from({ length: nR }, (_, i) => { const t = r.rt[i] || ''; return `<td class="r ronde">${t && sec(t) === snelst ? `<span class="snelst">${esc(t)}</span>` : (esc(t) || '')}</td>`; }).join('')}
+      <td class="r tijd">${esc(r.tijd) || '–'}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
 // ---------- klassementen
