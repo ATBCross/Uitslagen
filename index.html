@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ATB Cross Uitslagen</title>
+<meta name="description" content="Uitslagen en klassementen van ATB Cross, live op de wedstrijddag.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: kop met logo + seizoen, tabbalk, één kolom inhoud (max 980px); stuurbord-nummers als herkenbaar detail */
+:root {
+  --bg: #F3F2EE;          /* krijtgrijs, lichte gele zweem */
+  --surface: #FFFFFF;
+  --ink: #15161A;
+  --muted: #646670;
+  --line: #DCDAD2;
+  --plate: #FFD200;       /* Belgisch geel, zoals in het logo */
+  --plate-ink: #111111;
+  --red: #D7262D;
+  --dag: #C2620A;         /* dagrenner */
+  --dag-bg: #FFF0DD;
+  --gold: #C9A227; --silver: #9AA0A6; --bronze: #B0723A;
+  --head: #0E0F11; --head-ink: #FFFFFF;
+  --f-display: "Saira Extra Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111215; --surface: #1B1C21; --ink: #EDEDEA; --muted: #A1A3AB; --line: #2E3038;
+  --plate: #FFD200; --plate-ink: #111111; --red: #FF5A5F; --dag: #FFAA55; --dag-bg: #3A2A16;
+  --head: #000000; --head-ink: #FFFFFF; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111215; --surface: #1B1C21; --ink: #EDEDEA; --muted: #A1A3AB; --line: #2E3038;
+  --plate: #FFD200; --plate-ink: #111111; --red: #FF5A5F; --dag: #FFAA55; --dag-bg: #3A2A16;
+  --head: #000000; --head-ink: #FFFFFF; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--head) }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+
+header.top { background: var(--head); color: var(--head-ink) }
+header.top .wrap { display: flex; align-items: center; gap: 14px; padding-block: 12px; flex-wrap: wrap }
+.logo { background: #FFFFFF; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center }
+.logo img { height: 34px; display: block }
+.brand { display: flex; flex-direction: column; line-height: 1 }
+.brand b { font-family: var(--f-display); font-weight: 800; font-size: 26px; letter-spacing: .02em; text-transform: uppercase }
+.brand span { font-size: 12px; color: #B9BBC2; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px }
+.seizoen { margin-left: auto; display: flex; gap: 6px; background: #22242A; padding: 4px; border-radius: 999px }
+.seizoen button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 999px; font-weight: 600; font-size: 13px; color: #C9CBD1 }
+.seizoen button[aria-pressed="true"] { background: var(--plate); color: var(--plate-ink) }
+.seizoen button:focus-visible { outline: 2px solid var(--plate); outline-offset: 2px }
+.stripe { height: 4px; background: linear-gradient(90deg, #0E0F11 0 33.3%, #FFD200 33.3% 66.6%, #E3242B 66.6%) }
+
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line) }
+nav.tabs .wrap { display: flex; gap: 4px; overflow-x: auto }
+nav.tabs button { all: unset; cursor: pointer; padding: 12px 12px 10px; font-family: var(--f-display); font-weight: 600; font-size: 19px; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--red) }
+nav.tabs button:focus-visible { outline: 2px solid var(--red); outline-offset: -2px }
+
+main .wrap { padding-block: 20px 48px; display: flex; flex-direction: column; gap: 20px }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; letter-spacing: .01em; line-height: 1; margin: 0; text-wrap: balance }
+h1 { font-size: clamp(30px, 6vw, 44px) }
+h2 { font-size: 26px }
+h3 { font-size: 20px; font-weight: 600 }
+.sub { color: var(--muted); margin: 6px 0 0 }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+
+.zoek { position: relative }
+.zoek input { width: 100%; font: inherit; font-size: 20px; padding: 14px 16px 14px 46px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink) }
+.zoek input:focus { outline: none; border-color: var(--plate) }
+.zoek svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--muted) }
+
+.lijst { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden }
+.lijst > * + * { border-top: 1px solid var(--line) }
+.item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; cursor: pointer; background: none; border: 0; width: 100%; text-align: left; font: inherit; color: inherit }
+.item:hover, .item:focus-visible { background: color-mix(in srgb, var(--plate) 14%, var(--surface)); outline: none }
+.item .naam { font-weight: 600; min-width: 0 }
+.item .meta { color: var(--muted); font-size: 13px }
+.item .rechts { text-align: right; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums }
+
+/* stuurbord: geel bord met zwart nummer */
+.plate { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; height: 32px; padding: 0 6px; border-radius: 6px 6px 10px 10px; background: var(--plate); color: var(--plate-ink); font-family: var(--f-display); font-weight: 800; font-size: 20px; font-variant-numeric: tabular-nums; border: 2px solid #111; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12) }
+.plate.dag { background: #FFFFFF; border-style: dashed }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap }
+.chip.dag { background: var(--dag-bg); color: var(--dag); border-color: transparent }
+.chip.kl { color: var(--ink) }
+
+.profiel { display: flex; flex-direction: column; gap: 18px }
+.profiel-kop { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap }
+.profiel-kop .info { min-width: 0; flex: 1 }
+.terug { all: unset; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 14px }
+.terug:focus-visible { outline: 2px solid var(--red) }
+.cijfers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px }
+.cijfer { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px }
+.cijfer b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums }
+.cijfer span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600 }
+.cijfer.dag b { color: var(--dag) }
+@media (max-width: 560px) { .cijfers { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+
+.seizoensblok { display: flex; flex-direction: column; gap: 10px }
+.seizoensblok.vorig { opacity: .92 }
+.seizoenslabel { display: flex; align-items: center; gap: 10px }
+.seizoenslabel .chip.nu { background: var(--plate); color: var(--plate-ink); border-color: transparent }
+
+.tabel-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums }
+th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap }
+td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: middle }
+tr:last-child td { border-bottom: 0 }
+td.pl { font-family: var(--f-display); font-weight: 800; font-size: 22px; width: 52px }
+td.pl.p1 { color: var(--gold) } td.pl.p2 { color: var(--silver) } td.pl.p3 { color: var(--bronze) }
+td.r, th.r { text-align: right; white-space: nowrap }
+td.naamcel { font-weight: 600; min-width: 160px }
+td.naamcel button { all: unset; cursor: pointer; border-bottom: 1px dotted var(--muted) }
+td.naamcel button:hover, td.naamcel button:focus-visible { color: var(--red); border-bottom-color: var(--red) }
+td.club { color: var(--muted); font-size: 13px }
+tr.dagrij td { background: var(--dag-bg) }
+
+.wedstrijden { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px }
+.wedstrijd { all: unset; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px }
+.wedstrijd:hover, .wedstrijd:focus-visible { border-color: var(--plate); outline: none }
+.wedstrijd .nr { font-family: var(--f-display); font-weight: 800; color: var(--red); font-size: 15px; letter-spacing: .06em }
+.wedstrijd .pl { font-family: var(--f-display); font-weight: 800; font-size: 24px; text-transform: uppercase; line-height: 1 }
+.wedstrijd .meta { font-size: 13px; color: var(--muted) }
+.wedstrijd[aria-current="true"] { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red) }
+
+.klassen { display: flex; gap: 6px; flex-wrap: wrap }
+.klassen button { all: unset; cursor: pointer; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-display); font-weight: 800; font-size: 18px }
+.klassen button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.klassen button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px }
+
+.podiums { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px }
+.podium { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px }
+.podium h3 { display: flex; justify-content: space-between; align-items: baseline }
+.podium ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px }
+.podium li { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center }
+.podium li b { font-family: var(--f-display); font-weight: 800; font-size: 18px }
+.podium li button { all: unset; cursor: pointer; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.podium li button:hover, .podium li button:focus-visible { color: var(--red) }
+
+.leeg { background: var(--surface); border: 1px dashed var(--line); border-radius: 12px; padding: 22px; color: var(--muted) }
+.leeg h3 { color: var(--ink); margin-bottom: 6px }
+.info-kaarten { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px }
+.info-kaarten .leeg p { margin: 6px 0 0 }
+footer { color: var(--muted); font-size: 12px; padding-block: 0 32px }
+@media (prefers-reduced-motion: no-preference) { .fade { animation: fade .18s ease-out } @keyframes fade { from { opacity: .4 } to { opacity: 1 } } }
+
+/* live-balk, voorlopig, klassementen */
+.live:empty { display: none }
+.live { background: #FFF4D6; color: #3B2F00; border-bottom: 1px solid #F0D27A; font-size: 14px }
+.live .wrap { display: flex; align-items: center; gap: 8px; padding-block: 8px; flex-wrap: wrap }
+.live button { all: unset; cursor: pointer; margin-left: auto; font-weight: 700; background: #111; color: #FFD200; padding: 4px 12px; border-radius: 999px }
+.live button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px }
+.puls { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex: none }
+@media (prefers-reduced-motion: no-preference) { .puls { animation: puls 1.4s ease-in-out infinite } @keyframes puls { 50% { opacity: .25 } } }
+.chip.voorlopig { background: #FFF0DD; color: #A0520A; border-color: transparent }
+.melding { background: #FFF0DD; color: #6B3A08; border-radius: 12px; padding: 10px 14px; font-size: 14px }
+.klassen button small { font-family: var(--f-body); font-weight: 500; font-size: 12px; opacity: .7 }
+.klassen .stip { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #E08A1E; margin-left: 6px; vertical-align: middle }
+.soorten { display: flex; gap: 6px; flex-wrap: wrap }
+.soorten button { all: unset; cursor: pointer; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 14px }
+.soorten button[aria-selected="true"] { background: var(--plate); color: var(--plate-ink); border-color: #111 }
+.soorten button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px }
+.uitleg { color: var(--muted); font-size: 13px; max-width: 72ch }
+table.stand td.r, table.stand th.r { padding-inline: 8px }
+td.totaal { font-family: var(--f-display); font-weight: 800; font-size: 20px }
+td.telt-niet { color: var(--muted); text-decoration: line-through; opacity: .7 }
+td.wissel { font-style: italic }
+tr.onofficieel td { color: var(--muted) }
+tr.onofficieel .plate { opacity: .6 }
+tr.scheiding td { background: var(--bg); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.link { all: unset; cursor: pointer; font-weight: 600 }
+.link:hover, .link:focus-visible { color: var(--red) }
+td .meta { color: var(--muted); font-size: 12px; font-weight: 400 }
+@media (max-width: 560px) { table.stand .nrcol { display: none } table.stand td, table.stand th { padding-inline: 6px } td.naamcel { min-width: 130px } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="logo"><img alt="ATB Cross" src="logo.png"></div>
+    <div class="brand"><b>Uitslagen</b><span>MTB-wedstrijdreeks</span></div>
+    <div class="seizoen" role="group" aria-label="Seizoen" id="seizoenen"></div>
+  </div>
+  <div class="stripe"></div>
+</header>
+<div class="live" id="live" aria-live="polite"></div>
+<nav class="tabs" aria-label="Onderdelen"><div class="wrap" role="tablist" id="tabs"></div></nav>
+<main><div class="wrap" id="app"><div class="leeg">Uitslagen laden…</div></div></main>
+<footer><div class="wrap">Uitslagen en klassementen rechtstreeks uit Race Result. Op de wedstrijddag verschijnt elke reeks als voorlopige uitslag; na de verwerking thuis wordt alles definitief. Seizoen 2026 overgenomen uit de PDF-uitslagen; Merksplas en Mol: alleen inschrijvingen.</div></footer>
+<script>
+// ATB Cross Uitslagen: leest de gegevens uit data/*.json (geplaatst door het ATB Timing-programma)
+const KLASSEN = ['A', 'A40+', 'B', 'B50+', 'C', 'D', 'E'];
+const MAAND = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+const app = document.getElementById('app');
+const VERVERS_MS = 60000;
+
+// ---------- hulpjes
+const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+const sleutel = s => norm(s).split(' ').sort().join(' ');
+const slug = s => sleutel(s).replace(/ /g, '-');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const datum = d => { if (!d) return ''; const [y, m, dd] = d.split('-'); return `${+dd} ${MAAND[+m - 1]} ${y}`; };
+const uur = t => { try { const d = new Date(t); return isNaN(d) ? '' : d.toTimeString().slice(0, 5); } catch (e) { return ''; } };
+const rnr = r => 'R' + String(r).padStart(2, '0');
+const plate = (bib, dag) => `<span class="plate${dag ? ' dag' : ''}" title="${dag ? 'Reservestuurbord (dagrenner)' : 'Stuurbord'}">${bib}</span>`;
+const plaats = pl => pl ? pl : '–';
+const klOrde = k => { const i = KLASSEN.indexOf(k); return i < 0 ? 99 : i; };
+
+async function haal(pad) {
+  const r = await fetch(pad + (pad.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) throw new Error(pad + ': ' + r.status);
+  return r.json();
+}
+
+// ---------- gegevens
+let HUIDIG = new Date().getFullYear(), DATA = null, KLAS = {}, rijen = [], renners = new Map(), perSlug = new Map(), seizoenen = [];
+function verwerk(index, seizoensData, klassementen) {
+  HUIDIG = index.huidig;
+  const races = [], rows = [];
+  for (const sd of seizoensData) {
+    if (!sd) continue;
+    for (const w of sd.wedstrijden || []) {
+      const st = Object.values(w.klassen || {}).map(k => k.status);
+      const race = { s: sd.seizoen, r: w.r, d: w.d, n: w.n, u: !w.alleenInschrijving, c: (w.rijen || []).length, klassen: w.klassen || {},
+        voorlopig: st.includes('voorlopig'), bijgewerkt: Object.values(w.klassen || {}).map(k => k.tijd).filter(Boolean).sort().pop() };
+      races.push(race);
+      for (const x of w.rijen || []) rows.push([races.length - 1, ...x]);
+    }
+  }
+  DATA = { races, rows };
+  KLAS = klassementen;
+  rijen = rows.map(([w, bib, naam, kl, club, cat, pl, ro, tijd]) => {
+    const race = races[w];
+    return { race, w, bib, naam, kl, club, cat, pl, ro, tijd, dag: cat === 'DAG', key: sleutel(naam), s: race.s, voorlopig: (race.klassen[kl] || {}).status === 'voorlopig' };
+  });
+  renners = new Map();
+  for (const r of rijen) {
+    if (!renners.has(r.key)) renners.set(r.key, { key: r.key, namen: new Map(), clubs: new Map(), rijen: [] });
+    const p = renners.get(r.key);
+    p.rijen.push(r);
+    p.namen.set(r.naam, (p.namen.get(r.naam) || 0) + 1);
+    if (r.club) p.clubs.set(r.club, (p.clubs.get(r.club) || 0) + 1);
+  }
+  const meest = m => [...m.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+  for (const p of renners.values()) { p.naam = meest(p.namen); p.club = meest(p.clubs); p.slug = slug(p.naam); }
+  perSlug = new Map([...renners.values()].map(p => [p.slug, p]));
+  seizoenen = [...new Set([HUIDIG, ...index.seizoenen, ...races.map(r => r.s)])].sort((a, b) => b - a);
+}
+async function laadAlles() {
+  const index = await haal('data/index.json');
+  const sd = await Promise.all(index.seizoenen.map(s => haal(`data/uitslagen_${s}.json`).catch(() => null)));
+  const kl = {};
+  await Promise.all(index.seizoenen.map(s => haal(`data/klassementen_${s}.json`).then(k => { kl[s] = k; }).catch(() => {})));
+  verwerk(index, sd, kl);
+}
+
+// ---------- toestand
+let st = { tab: 'renners', seizoen: null, zoek: '', renner: null, wedstrijd: null, klasse: null, stand: 'kampioenschap', standKlasse: null };
+
+// ---------- kop: seizoenen en tabs
+function tekenKop() {
+  document.getElementById('seizoenen').innerHTML = seizoenen.map(s =>
+    `<button type="button" aria-pressed="${s === st.seizoen}" data-s="${s}">${s}${s === HUIDIG ? ' · nu' : ''}</button>`).join('');
+  const tabs = [['renners', 'Renners'], ['wedstrijden', 'Wedstrijden'], ['klassementen', 'Klassementen']];
+  document.getElementById('tabs').innerHTML = tabs.map(([k, t]) =>
+    `<button type="button" role="tab" aria-selected="${k === st.tab}" data-tab="${k}">${t}</button>`).join('');
+  const live = DATA.races.find(r => r.s === HUIDIG && r.voorlopig);
+  document.getElementById('live').innerHTML = live ? `<div class="wrap"><span class="puls" aria-hidden="true"></span>
+    <b>${esc(live.n)}</b>&nbsp;· uitslagen komen per reeks binnen (voorlopig) · laatst om ${uur(live.bijgewerkt)}
+    <button type="button" data-live="${DATA.races.indexOf(live)}">Bekijk</button></div>` : '';
+}
+document.getElementById('seizoenen').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  st.seizoen = +b.dataset.s; st.wedstrijd = null; st.klasse = null; st.standKlasse = null;
+  try { localStorage.setItem('atb-seizoen', st.seizoen); } catch (e) {}
+  teken();
+});
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  st.tab = b.dataset.tab; st.renner = null; if (st.tab !== 'wedstrijden') st.wedstrijd = null;
+  zetHash(st.tab); teken();
+});
+document.getElementById('live').addEventListener('click', e => {
+  const b = e.target.closest('[data-live]'); if (!b) return;
+  st.tab = 'wedstrijden'; st.wedstrijd = +b.dataset.live; st.seizoen = DATA.races[st.wedstrijd].s; st.klasse = null; zetHash('wedstrijden'); teken();
+});
+function zetHash(h) { try { history.replaceState(null, '', '#' + h); } catch (e) {} }
+
+// ---------- renners
+function tekenRenners() {
+  if (st.renner) return tekenProfiel(perSlug.get(st.renner));
+  const q = norm(st.zoek);
+  let html = `<div><h1>Renner opzoeken</h1><p class="sub">Typ een naam. De volgorde van voor- en achternaam maakt niet uit.</p></div>
+    <div class="zoek"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="zoekveld" type="search" autocomplete="off" placeholder="bv. Klazen Bart" value="${esc(st.zoek)}" aria-label="Naam van de renner"></div>`;
+  if (q.length >= 2) {
+    const woorden = q.split(' ').filter(w => w.length >= 2);
+    const hits = [...renners.values()].filter(p => woorden.every(w => (' ' + p.key + ' ').includes(w) || norm(p.naam).includes(w)))
+      .sort((a, b) => b.rijen.length - a.rijen.length).slice(0, 40);
+    html += hits.length ? `<div class="lijst" id="hits">${hits.map(p => {
+      const dag = p.rijen.filter(r => r.dag).length;
+      const kl = [...new Set(p.rijen.map(r => r.kl).filter(Boolean))].sort((a, b) => klOrde(a) - klOrde(b)).join(' · ');
+      return `<button class="item" type="button" data-r="${p.slug}">${plate(p.rijen[0].bib, p.rijen[0].dag)}
+        <span class="naam">${esc(p.naam)}<br><span class="meta">${esc(p.club || 'geen club')} · ${esc(kl)}</span></span>
+        <span class="rechts">${p.rijen.length} wedstr.${dag ? `<br><span class="chip dag">${dag}× dag</span>` : ''}</span></button>`;
+    }).join('')}</div>` : `<div class="leeg"><h3>Niemand gevonden</h3>Geen renner met “${esc(st.zoek)}”. Nooit eerder gereden, of anders geschreven? Probeer een deel van de naam.</div>`;
+  } else {
+    html += tekenPodiums();
+  }
+  app.innerHTML = html;
+  const z = document.getElementById('zoekveld');
+  z.addEventListener('input', () => { st.zoek = z.value; const pos = z.selectionStart; tekenRenners(); const n = document.getElementById('zoekveld'); n.focus(); n.setSelectionRange(pos, pos); });
+}
+function tekenPodiums() {
+  const races = DATA.races.filter(r => r.s === st.seizoen && r.u);
+  if (!races.length) return `<div class="leeg"><h3>Seizoen ${st.seizoen}: nog geen uitslagen</h3>Na elke reeks verschijnt hier het podium per klasse. Zoek intussen een renner: je ziet ook zijn uitslagen van vorige seizoenen.</div>`;
+  const laatste = races[races.length - 1], w = DATA.races.indexOf(laatste);
+  const perKl = groepeer(rijen.filter(r => r.w === w));
+  return `<div><div class="eyebrow">${laatste.voorlopig ? 'Nu bezig' : 'Laatste wedstrijd'} · ${rnr(laatste.r)} · ${datum(laatste.d)}</div><h2>${esc(laatste.n)}</h2></div>
+    <div class="podiums">${perKl.map(([kl, rs]) => `<div class="podium"><h3>${esc(kl)} <span class="eyebrow">${rs.length} renners${(laatste.klassen[kl] || {}).status === 'voorlopig' ? ' · <span class="chip voorlopig">voorlopig</span>' : ''}</span></h3><ol>${
+      rs.filter(r => r.pl).slice(0, 3).map(r => `<li><b>${r.pl}</b><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button>${r.dag ? '<span class="chip dag">dag</span>' : `<span class="meta">${esc(r.tijd)}</span>`}</li>`).join('')}</ol></div>`).join('')}</div>`;
+}
+function groepeer(rs) {
+  const m = new Map();
+  for (const r of rs) { if (!m.has(r.kl)) m.set(r.kl, []); m.get(r.kl).push(r); }
+  for (const v of m.values()) v.sort((a, b) => (a.pl || 999) - (b.pl || 999) || a.naam.localeCompare(b.naam));
+  return [...m.entries()].sort((a, b) => klOrde(a[0]) - klOrde(b[0]));
+}
+function tekenProfiel(p) {
+  if (!p) { st.renner = null; return tekenRenners(); }
+  const kl = [...new Set(p.rijen.map(r => r.kl).filter(Boolean))].sort((a, b) => klOrde(a) - klOrde(b));
+  const blokken = seizoenen.map(s => {
+    const rs = p.rijen.filter(r => r.s === s).sort((a, b) => b.race.r - a.race.r);
+    const nu = s === HUIDIG;
+    const titel = `<div class="seizoenslabel"><h2>Seizoen ${s}</h2><span class="chip${nu ? ' nu' : ''}">${nu ? 'huidig seizoen' : 'vorig seizoen'}</span></div>`;
+    if (!rs.length) return `<section class="seizoensblok${nu ? '' : ' vorig'}">${titel}<div class="leeg">${nu ? 'Nog geen wedstrijden gereden in ' + s + '.' : 'Niet gereden in ' + s + '.'}</div></section>`;
+    const metPl = rs.filter(r => r.pl), dag = rs.filter(r => r.dag).length;
+    const beste = metPl.length ? Math.min(...metPl.map(r => r.pl)) : '–';
+    const top3 = metPl.filter(r => r.pl <= 3).length;
+    const stand = standVan(s, p);
+    return `<section class="seizoensblok${nu ? '' : ' vorig'}">${titel}
+      <div class="cijfers"><div class="cijfer"><b>${new Set(rs.map(r => r.race.r)).size}</b><span>wedstrijden</span></div>
+        <div class="cijfer"><b>${beste}</b><span>beste plaats</span></div>
+        <div class="cijfer"><b>${stand ? (stand.kampRang || '–') : top3}</b><span>${stand ? 'kampioenschap ' + esc(stand.kl) : 'keer podium'}</span></div>
+        <div class="cijfer${dag ? ' dag' : ''}"><b>${dag}</b><span>als dagrenner</span></div></div>
+      <div class="tabel-wrap"><table><thead><tr><th>Pl.</th><th>Wedstrijd</th><th>Klasse</th><th>Nr.</th><th class="r">Rondes</th><th class="r">Tijd</th><th></th></tr></thead><tbody>${
+        rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td>
+          <td><button type="button" class="link" data-w="${r.w}">${rnr(r.race.r)} ${esc(r.race.n)}</button><br><span class="meta">${datum(r.race.d)}</span></td>
+          <td><span class="chip kl">${esc(r.kl)}</span>${r.voorlopig ? ' <span class="chip voorlopig">voorlopig</span>' : ''}</td><td>${plate(r.bib, r.dag)}</td>
+          <td class="r">${r.ro || '–'}</td><td class="r">${esc(r.tijd) || (r.race.u ? '–' : 'inschrijving')}</td>
+          <td>${r.dag ? '<span class="chip dag">dagrenner</span>' : esc(r.cat)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  }).join('');
+  app.innerHTML = `<button class="terug" type="button" id="terug">← Terug naar zoeken</button>
+    <div class="profiel fade"><div class="profiel-kop">${plate(p.rijen[0].bib, p.rijen[0].dag)}
+      <div class="info"><h1>${esc(p.naam)}</h1><p class="sub">${esc(p.club || 'geen club')} · klasse ${esc(kl.join(' · ') || '–')}</p></div></div>${blokken}</div>`;
+  document.getElementById('terug').addEventListener('click', () => { st.renner = null; zetHash('renners'); teken(); });
+}
+function standVan(s, p) {
+  const k = KLAS[s]; if (!k) return null;
+  return k.renners.find(x => sleutel(x.naam) === p.key) || null;
+}
+
+// ---------- wedstrijden
+function tekenWedstrijden() {
+  const races = DATA.races.map((r, i) => ({ ...r, i })).filter(r => r.s === st.seizoen);
+  if (!races.length) { app.innerHTML = `<div><h1>Wedstrijden ${st.seizoen}</h1></div><div class="leeg"><h3>Het seizoen ${st.seizoen} is nog niet begonnen</h3>Op de wedstrijddag verschijnt hier de uitslag van elke reeks zodra ze gereden is.</div>`; return; }
+  if (st.wedstrijd == null || DATA.races[st.wedstrijd]?.s !== st.seizoen) st.wedstrijd = races.filter(r => r.u).slice(-1)[0]?.i ?? races[0].i;
+  const w = DATA.races[st.wedstrijd];
+  const groepen = groepeer(rijen.filter(r => r.w === st.wedstrijd));
+  if (!st.klasse || !groepen.some(g => g[0] === st.klasse)) st.klasse = groepen[0]?.[0];
+  const rs = (groepen.find(g => g[0] === st.klasse) || [null, []])[1];
+  const kst = w.klassen[st.klasse] || {};
+  const meta = r => r.voorlopig ? `<span class="chip voorlopig">bezig</span> ${Object.keys(r.klassen).length} kl.` : (r.u ? r.c + ' renners' : 'geen uitslag');
+  app.innerHTML = `<div><h1>Wedstrijden ${st.seizoen}</h1><p class="sub">${races.length} wedstrijden. Kies een wedstrijd en een klasse.</p></div>
+    <div class="wedstrijden">${races.map(r => `<button type="button" class="wedstrijd" data-w="${r.i}" aria-current="${r.i === st.wedstrijd}">
+      <span class="nr">${rnr(r.r)}</span><span class="pl">${esc(r.n)}</span><span class="meta">${datum(r.d)} · ${meta(r)}</span></button>`).join('')}</div>
+    <div class="fade" style="display:flex;flex-direction:column;gap:12px">
+      <div><div class="eyebrow">${rnr(w.r)} · ${datum(w.d)}</div><h2>${esc(w.n)}${w.u ? '' : ' · inschrijvingen'}</h2>${w.u ? '' : '<p class="sub">Van deze wedstrijd is geen uitslag beschikbaar, alleen de lijst van ingeschreven renners.</p>'}</div>
+      <div class="klassen" role="group" aria-label="Klasse">${groepen.map(([k, v]) => `<button type="button" data-k="${esc(k)}" aria-pressed="${k === st.klasse}">${esc(k)} <small>${v.length}</small>${(w.klassen[k] || {}).status === 'voorlopig' ? '<i class="stip" title="voorlopig"></i>' : ''}</button>`).join('')}</div>
+      ${kst.status === 'voorlopig' ? `<div class="melding"><b>Voorlopige uitslag</b> (${uur(kst.tijd)}). Correcties van de wedstrijddag (nummerwissels, handmatige doorkomsten) volgen in de definitieve uitslag.</div>` : ''}
+      <div class="tabel-wrap"><table><thead><tr><th>Pl.</th><th>Nr.</th><th>Naam</th><th>Club</th><th>Cat.</th><th class="r">Rondes</th><th class="r">Tijd</th></tr></thead><tbody>${
+        rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td><td>${plate(r.bib, r.dag)}</td>
+          <td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button></td><td class="club">${esc(r.club)}</td>
+          <td>${r.dag ? '<span class="chip dag">dag</span>' : esc(r.cat)}</td><td class="r">${r.ro || '–'}</td><td class="r">${esc(r.tijd) || '–'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+// ---------- klassementen
+const STANDEN = [['kampioenschap', 'Kampioenschap'], ['regelmaat', 'Regelmatigheid'], ['team', 'Teamklassement']];
+function tekenKlassementen() {
+  const k = KLAS[st.seizoen];
+  const kop = `<div><h1>Klassementen ${st.seizoen}</h1>${k ? `<p class="sub">Stand na wedstrijd ${k.naWedstrijd} (${esc(k.plaats)}) · bijgewerkt ${datum((k.bijgewerkt || '').slice(0, 10))}</p>` : ''}</div>
+    <div class="soorten" role="tablist">${STANDEN.map(([s, t]) => `<button type="button" role="tab" data-stand="${s}" aria-selected="${s === st.stand}">${t}</button>`).join('')}</div>`;
+  if (!k) {
+    app.innerHTML = kop + `<div class="leeg"><h3>Nog geen klassementen voor ${st.seizoen}</h3>De klassementen komen hier na de verwerking van de eerste wedstrijd.</div>`;
+    return;
+  }
+  const n = k.gereden;
+  const naamW = i => (k.wedstrijden.find(x => x.r === i + 1) || {}).n || '';
+  const wKop = Array.from({ length: n }, (_, i) => `<th class="r" title="${esc(naamW(i))}">${rnr(i + 1)}</th>`).join('');
+  if (st.stand === 'team') {
+    const t = k.team || [];
+    app.innerHTML = kop + (t.length ? `<div class="uitleg">Per club per wedstrijd: beste STA, tweede STA, beste SEN en beste DAM/VET. De plaats van de club telt; het laagste totaal wint.</div>
+      <div class="tabel-wrap"><table class="stand"><thead><tr><th>Pl.</th><th>Club</th>${wKop}<th class="r">Totaal</th></tr></thead><tbody>${
+        t.map(x => `<tr><td class="pl ${x.rang <= 3 ? 'p' + x.rang : ''}">${x.rang}</td><td class="naamcel">${esc(x.club)}</td>${
+          Array.from({ length: n }, (_, i) => `<td class="r">${x.w[i] ?? '–'}</td>`).join('')}<td class="r totaal">${x.totaal}</td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="leeg"><h3>Geen teamklassement</h3>Het teamklassement is nog niet gepubliceerd.</div>`);
+    return;
+  }
+  const isKamp = st.stand === 'kampioenschap';
+  const klassen = [...new Set(k.renners.map(r => r.kl))].sort((a, b) => klOrde(a) - klOrde(b));
+  if (!st.standKlasse || !klassen.includes(st.standKlasse)) st.standKlasse = klassen[0];
+  const tellendNu = Math.min(n, k.tellend || n);
+  let rs = k.renners.filter(r => r.kl === st.standKlasse);
+  const rang = r => isKamp ? r.kampRang : r.regelRang, totaal = r => isKamp ? r.kamp : r.regel;
+  rs.sort((a, b) => (rang(a) || 9999) - (rang(b) || 9999) || totaal(a) - totaal(b) || a.naam.localeCompare(b.naam));
+  // welke wedstrijden tellen niet mee (doorstreept)
+  const telNiet = r => {
+    const w = r.w.map((v, i) => ({ v: v ?? 80, i })).sort((a, b) => b.v - a.v || b.i - a.i);
+    const weg = isKamp ? Math.max(0, n - tellendNu) : (n > 1 ? 1 : 0);
+    return new Set(w.slice(0, weg).map(x => x.i));
+  };
+  const rij = r => { const tn = telNiet(r); return `<tr class="${!isKamp || r.officieel ? '' : 'onofficieel'}"><td class="pl ${rang(r) && rang(r) <= 3 ? 'p' + rang(r) : ''}">${rang(r) || '–'}</td>
+    <td class="nrcol">${plate(r.bib)}</td><td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button><br><span class="meta">${esc(r.club)}</span></td>${
+    Array.from({ length: n }, (_, i) => { const v = r.w[i]; return `<td class="r${tn.has(i) ? ' telt-niet' : ''}${v === 50 ? ' wissel' : ''}">${v ?? '–'}</td>`; }).join('')}
+    <td class="r totaal">${totaal(r)}</td></tr>`; };
+  const off = isKamp ? rs.filter(r => r.officieel) : rs, nietOff = isKamp ? rs.filter(r => !r.officieel) : [];
+  const uitleg = isKamp
+    ? `Punten per wedstrijd = plaats in de klasse (max. 60, 80 zonder volle ronde of niet gestart). De beste ${tellendNu} van ${n} wedstrijden tellen; doorstreept telt niet mee. Om gerangschikt te worden moet je minstens ${k.tellend} wedstrijden starten. 50 = resultaat vóór een klassewissel.`
+    : `Som van alle wedstrijden min de slechtste (doorstreept). Een gemiste wedstrijd telt als 80 punten. 50 = resultaat vóór een klassewissel.`;
+  app.innerHTML = kop + `<div class="klassen" role="group" aria-label="Klasse">${klassen.map(kl => `<button type="button" data-sk="${esc(kl)}" aria-pressed="${kl === st.standKlasse}">${esc(kl)}</button>`).join('')}</div>
+    <div class="uitleg">${uitleg}</div>
+    <div class="tabel-wrap"><table class="stand"><thead><tr><th>Pl.</th><th class="nrcol">Nr.</th><th>Naam</th>${wKop}<th class="r">Totaal</th></tr></thead><tbody>${off.map(rij).join('')}
+      ${nietOff.length ? `<tr class="scheiding"><td colspan="${n + 4}">Nog niet genoeg wedstrijden gestart (minder dan ${k.tellend})</td></tr>${nietOff.map(rij).join('')}` : ''}</tbody></table></div>`;
+}
+
+// ---------- tekenen en navigatie
+function teken() {
+  tekenKop();
+  if (st.tab === 'renners') tekenRenners();
+  else if (st.tab === 'wedstrijden') tekenWedstrijden();
+  else tekenKlassementen();
+}
+app.addEventListener('click', e => {
+  const r = e.target.closest('[data-r]');
+  if (r) { st.tab = 'renners'; st.renner = r.dataset.r; zetHash('r-' + r.dataset.r); teken(); window.scrollTo(0, 0); return; }
+  const w = e.target.closest('[data-w]');
+  if (w) { st.tab = 'wedstrijden'; st.wedstrijd = +w.dataset.w; st.seizoen = DATA.races[st.wedstrijd].s; st.klasse = null; zetHash('wedstrijden'); teken(); return; }
+  const k = e.target.closest('[data-k]');
+  if (k) { st.klasse = k.dataset.k; teken(); return; }
+  const s = e.target.closest('[data-stand]');
+  if (s) { st.stand = s.dataset.stand; teken(); return; }
+  const sk = e.target.closest('[data-sk]');
+  if (sk) { st.standKlasse = sk.dataset.sk; teken(); }
+});
+
+// automatisch vernieuwen terwijl een wedstrijd bezig is (zonder het zoekveld te storen)
+async function ververs() {
+  if (document.hidden) return;
+  const bezig = DATA && DATA.races.some(r => r.s === HUIDIG && r.voorlopig);
+  const vandaag = new Date().toISOString().slice(0, 10);
+  if (!bezig && !(DATA && DATA.races.some(r => r.d === vandaag))) return;
+  try {
+    const oudeW = st.wedstrijd != null ? DATA.races[st.wedstrijd] : null;
+    await laadAlles();
+    if (oudeW) { const i = DATA.races.findIndex(r => r.s === oudeW.s && r.r === oudeW.r); st.wedstrijd = i >= 0 ? i : null; }
+    if (st.tab === 'renners' && !st.renner && document.activeElement?.id === 'zoekveld') { tekenKop(); return; }
+    teken();
+  } catch (e) {}
+}
+
+function leesHash() {
+  const h = (location.hash || '').slice(1);
+  if (h.startsWith('r-') && perSlug.has(h.slice(2))) { st.tab = 'renners'; st.renner = h.slice(2); }
+  else if (['renners', 'wedstrijden', 'klassementen'].includes(h)) { st.tab = h; st.renner = null; }
+}
+(async function start() {
+  try { await laadAlles(); }
+  catch (e) { app.innerHTML = `<div class="leeg"><h3>De uitslagen konden niet geladen worden</h3>Controleer je internetverbinding en vernieuw de pagina.</div>`; return; }
+  st.seizoen = HUIDIG;
+  try { const z = localStorage.getItem('atb-seizoen'); if (z && seizoenen.includes(+z)) st.seizoen = +z; } catch (e) {}
+  if (!DATA.races.some(r => r.s === st.seizoen) && !KLAS[st.seizoen]) st.seizoen = seizoenen.find(s => DATA.races.some(r => r.s === s)) || HUIDIG;
+  leesHash();
+  teken();
+  window.addEventListener('hashchange', () => { leesHash(); teken(); });
+  setInterval(ververs, VERVERS_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) ververs(); });
+})();
+
+</script>
+</body>
+</html>
