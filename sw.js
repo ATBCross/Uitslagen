@@ -1,8 +1,8 @@
 // ATB Cross Uitslagen - service worker
 // Website-bestanden: eerst het netwerk, bij geen verbinding de bewaarde versie.
 // Uitslagen (data/*.json) worden altijd vers opgehaald; zonder verbinding de laatst bewaarde.
-const CACHE = 'atb-uitslagen-v1';
-const BASIS = ['./', './index.html', './logo.png', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
+const CACHE = 'atb-uitslagen-v2';
+const BASIS = ['./', './index.html', './logo.png', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASIS)).then(() => self.skipWaiting()));
