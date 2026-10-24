@@ -1,0 +1,84 @@
+﻿ATB CROSS UITSLAGENWEBSITE - EENMALIG INSTALLEREN
+=================================================
+
+De website staat gratis op GitHub Pages. Het programma ATB Timing (versie 3.19 of later) zet er de
+uitslagen en klassementen op. Reken op ongeveer 20 minuten om alles in te stellen.
+
+Inhoud van deze map (alles komt op GitHub):
+  index.html                  de website
+  logo.png                    logo
+  .nojekyll                   leeg bestand, nodig voor GitHub Pages (niet verwijderen)
+  data\index.json             welke seizoenen er zijn
+  data\uitslagen_2026.json    alle uitslagen van 2026 (uit de PDF's)
+  De bestanden van 2027 (uitslagen_2027.json en klassementen_2027.json) maakt het programma zelf aan.
+
+
+STAP 1 - GITHUB-ACCOUNT
+  Ga naar https://github.com en maak een gratis account (bv. met het e-mailadres van ATB Cross).
+  De accountnaam komt in het adres van de site: bv. account "atbcross" geeft
+  https://atbcross.github.io/uitslagen/
+
+
+STAP 2 - REPOSITORY (de "map" van de website)
+  1. Klik rechtsboven op + > New repository.
+  2. Repository name: uitslagen
+  3. Kies Public (GitHub Pages is alleen gratis voor publieke repositories; de uitslagen zijn toch openbaar).
+  4. Klik op Create repository.
+
+
+STAP 3 - BESTANDEN OPLADEN
+  1. Klik in de nieuwe repository op "uploading an existing file" (of Add file > Upload files).
+  2. Sleep ALLES uit deze map in het venster: index.html, logo.png, .nojekyll en de map data.
+     (Dit tekstbestand mag ook mee, dat is niet erg.)
+  3. Klik onderaan op Commit changes.
+  Kijk na of je de map data ziet met daarin index.json en uitslagen_2026.json.
+
+
+STAP 4 - GITHUB PAGES AANZETTEN
+  1. In de repository: Settings > Pages (links).
+  2. Source: Deploy from a branch.  Branch: main,  map: / (root).  Klik op Save.
+  3. Wacht 1 à 2 minuten en vernieuw de pagina. Bovenaan verschijnt "Your site is live at ...".
+     Dat adres is de website. Open ze: je ziet seizoen 2026.
+
+
+STAP 5 - SLEUTEL (TOKEN) VOOR HET PROGRAMMA
+  Met deze sleutel mag het programma bestanden in de repository zetten, en NIETS anders.
+  1. Klik rechtsboven op je profielfoto > Settings.
+  2. Helemaal onderaan links: Developer settings > Personal access tokens > Fine-grained tokens.
+  3. Klik op Generate new token.
+     - Token name: ATB Timing
+     - Expiration: kies de langste termijn (bv. 1 jaar). Zet in je agenda wanneer hij vervalt.
+     - Repository access: Only select repositories > kies "uitslagen".
+     - Permissions > Repository permissions > Contents: Read and write.
+  4. Klik op Generate token en KOPIEER de sleutel (begint met github_pat_...).
+     GitHub toont ze maar één keer. Deel ze met niemand.
+
+
+STAP 6 - IN ATB TIMING INVULLEN
+  Open ATB Timing > Beheer > Instellingen:
+    Website: GitHub-repository   accountnaam/uitslagen         (bv. atbcross/uitslagen)
+    Website: sleutel (token)     de gekopieerde sleutel
+    Website: adres               het adres uit stap 4          (bv. https://atbcross.github.io/uitslagen/)
+  Klik op Opslaan. De sleutel wordt versleuteld bewaard en werkt alleen voor jouw Windows-gebruiker op
+  die laptop. Gebruik je een tweede laptop: daar opnieuw invullen.
+
+
+STAP 7 - TESTEN (aanrader, thuis)
+  1. Open in Race Result een racebestand met een uitslag (bv. de back-up van Mol).
+  2. Kies in ATB Timing een wedstrijd en klik op de tegel "Uitslag op de website".
+  3. Kies een klasse > Op de website zetten. Na ongeveer een minuut zie je ze op de site (voorlopig).
+  4. Na de test: verwijder op GitHub het bestand data/uitslagen_2027.json
+     (bestand openen > ... rechtsboven > Delete file > Commit changes).
+
+
+GOED OM TE WETEN
+  - Na elke publicatie duurt het ongeveer een minuut voor de site bijgewerkt is. De site vernieuwt zichzelf
+    elke minuut op de wedstrijddag; bezoekers hoeven niets te doen.
+  - GitHub bouwt de site maximaal ongeveer 10 keer per uur zonder vertraging. Een reeks twee of drie keer
+    opnieuw publiceren is geen probleem; daarna kan het enkele minuten langer duren.
+  - Sleutel verlopen? Het programma meldt "GitHub weigert de sleutel (401)". Maak een nieuwe (stap 5) en vul ze
+    in (stap 6).
+  - Eigen adres (bv. uitslagen.atbcross.com): Settings > Pages > Custom domain. Bij de beheerder van
+    atbcross.com moet dan een CNAME-record "uitslagen" naar accountnaam.github.io gezet worden. Pas daarna
+    ook "Website: adres" aan in ATB Timing.
+  - Op de site van atbcross.com kan je een knop of link naar de uitslagenwebsite zetten.
