@@ -445,6 +445,8 @@ function tekenKlassementen() {
   rs.sort((a, b) => (rang(a) || 9999) - (rang(b) || 9999) || totaal(a) - totaal(b) || a.naam.localeCompare(b.naam));
   // welke wedstrijden tellen niet mee (doorstreept)
   const telNiet = r => {
+    if (isKamp && Array.isArray(r.wegK)) return new Set(r.wegK);
+    if (!isKamp && Array.isArray(r.wegR)) return new Set(r.wegR);
     const w = r.w.map((v, i) => ({ v: v ?? 80, i })).sort((a, b) => b.v - a.v || b.i - a.i);
     const weg = isKamp ? Math.max(0, n - tellendNu) : (n > 1 ? 1 : 0);
     return new Set(w.slice(0, weg).map(x => x.i));
@@ -454,13 +456,13 @@ function tekenKlassementen() {
     Array.from({ length: n }, (_, i) => { const v = r.w[i]; return `<td class="r${tn.has(i) ? ' telt-niet' : ''}${v === 50 ? ' wissel' : ''}">${v ?? '–'}</td>`; }).join('')}
     <td class="r totaal">${totaal(r)}</td></tr>`; };
   const off = isKamp ? rs.filter(r => r.officieel) : rs, nietOff = isKamp ? rs.filter(r => !r.officieel) : [];
-  const uitleg = isKamp
+  const uitleg = isKamp && k.uitlegKamp ? esc(k.uitlegKamp) : isKamp
     ? `Punten per wedstrijd = plaats in de klasse (max. 60, 80 zonder volle ronde of niet gestart). De beste ${tellendNu} van ${n} wedstrijden tellen; doorstreept telt niet mee. Om gerangschikt te worden moet je minstens ${k.tellend} wedstrijden starten. 50 = resultaat vóór een klassewissel.`
     : `Som van alle wedstrijden min de slechtste (doorstreept). Een gemiste wedstrijd telt als 80 punten. 50 = resultaat vóór een klassewissel.`;
   app.innerHTML = kop + `<div class="klassen" role="group" aria-label="Klasse">${klassen.map(kl => `<button type="button" data-sk="${esc(kl)}" aria-pressed="${kl === st.standKlasse}">${esc(kl)}</button>`).join('')}</div>
     <div class="uitleg">${uitleg}</div>
     <div class="tabel-wrap"><table class="stand"><thead><tr><th>Pl.</th><th class="nrcol">Nr.</th><th>Naam</th>${wKop}<th class="r">Totaal</th></tr></thead><tbody>${off.map(rij).join('')}
-      ${nietOff.length ? `<tr class="scheiding"><td colspan="${n + 4}">Nog niet genoeg wedstrijden gestart (minder dan ${k.tellend})</td></tr>${nietOff.map(rij).join('')}` : ''}</tbody></table></div>`;
+      ${nietOff.length ? `<tr class="scheiding"><td colspan="${n + 4}">${k.nietGerangschikt ? esc(k.nietGerangschikt) : `Nog niet genoeg wedstrijden gestart (minder dan ${k.tellend})`}</td></tr>${nietOff.map(rij).join('')}` : ''}</tbody></table></div>`;
 }
 
 // ---------- tekenen en navigatie
