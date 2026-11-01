@@ -13,8 +13,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="ATB Cross">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* lettertypes staan op de eigen website: geen verbinding met Google (privacy) */
+@font-face { font-family: "Barlow"; font-weight: 400; font-style: normal; font-display: swap; src: url(fonts/barlow-400.woff) format("woff") }
+@font-face { font-family: "Barlow"; font-weight: 500; font-style: normal; font-display: swap; src: url(fonts/barlow-500.woff) format("woff") }
+@font-face { font-family: "Barlow"; font-weight: 600; font-style: normal; font-display: swap; src: url(fonts/barlow-600.woff) format("woff") }
+@font-face { font-family: "Barlow"; font-weight: 700; font-style: normal; font-display: swap; src: url(fonts/barlow-700.woff) format("woff") }
+@font-face { font-family: "Saira Extra Condensed"; font-weight: 600; font-style: normal; font-display: swap; src: url(fonts/saira-600.woff) format("woff") }
+@font-face { font-family: "Saira Extra Condensed"; font-weight: 800; font-style: normal; font-display: swap; src: url(fonts/saira-800.woff) format("woff") }
+</style>
 <style>
 /* Layout: kop met logo + seizoen, tabbalk, één kolom inhoud (max 980px); stuurbord-nummers als herkenbaar detail */
 :root {
@@ -201,7 +208,7 @@ table.rondes td.tijd { font-weight: 700 }
 <div class="live" id="live" aria-live="polite"></div>
 <nav class="tabs" aria-label="Onderdelen"><div class="wrap" role="tablist" id="tabs"></div></nav>
 <main><div class="wrap" id="app"><div class="leeg">Uitslagen laden…</div></div></main>
-<footer><div class="wrap">Uitslagen en klassementen rechtstreeks uit Race Result. Op de wedstrijddag verschijnt elke reeks als voorlopige uitslag; na de verwerking thuis wordt alles definitief. Seizoen 2026 overgenomen uit de officiële uitslagen en klassementen; Merksplas heeft geen uitslag.</div></footer>
+<footer><div class="wrap">Uitslagen en klassementen rechtstreeks uit Race Result. Op de wedstrijddag verschijnt elke reeks als voorlopige uitslag; na de verwerking thuis wordt alles definitief. Seizoen 2026 overgenomen uit de officiële uitslagen en klassementen; Merksplas heeft geen uitslag. · <a href="privacy.html">Privacy</a></div></footer>
 <script>
 // ATB Cross Uitslagen: leest de gegevens uit data/*.json (geplaatst door het ATB Timing-programma)
 const KLASSEN = ['A', 'A40+', 'B', 'B50+', 'C', 'D', 'E'];
