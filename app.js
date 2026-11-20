@@ -257,7 +257,8 @@ function tekenKlassementen() {
   const k = KLAS[st.seizoen];
   // Versie van het klassement: na welke wedstrijd. Een latere wedstrijd (voorlopige uitslag van de wedstrijddag)
   // zit er pas in na de verwerking in de week na de wedstrijd: dat staat er dan uitdrukkelijk bij.
-  const nog = k ? DATA.races.filter(r => r.s === st.seizoen && r.u && r.r > (k.naWedstrijd || 0) && r.c > 0) : [];
+  // alleen in het lopende seizoen (een afgelopen seizoen wordt niet meer bijgewerkt; bv. Mol 2026 telde bewust niet mee)
+  const nog = k && st.seizoen === HUIDIG ? DATA.races.filter(r => r.s === st.seizoen && r.u && r.r > (k.naWedstrijd || 0) && r.c > 0) : [];
   const nogTekst = nog.length ? `<div class="melding"><b>Nog niet in dit klassement:</b> ${nog.map(r => `wedstrijd ${r.r} (${esc(r.n)})${r.voorlopig ? ', voorlopige uitslag' : ''}`).join('; ')}. Het klassement wordt bijgewerkt in de week na de wedstrijd.</div>` : '';
   const kop = `<div><h1>Klassementen ${st.seizoen}</h1>${k ? `<p class="sub"><b>Klassement na wedstrijd ${k.naWedstrijd}</b> (${esc(k.plaats)}) · bijgewerkt ${datum((k.bijgewerkt || '').slice(0, 10))}</p>` : ''}</div>${nogTekst}
     <div class="soorten" role="tablist">${STANDEN.map(([s, t]) => `<button type="button" role="tab" data-stand="${s}" aria-selected="${s === st.stand}">${t}</button>`).join('')}</div>`;
