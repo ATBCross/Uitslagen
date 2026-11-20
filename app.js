@@ -15,6 +15,11 @@ const rnr = r => 'R' + String(r).padStart(2, '0');
 const plate = (bib, dag) => `<span class="plate${dag ? ' dag' : ''}" title="${dag ? 'Reservestuurbord (dagrenner)' : 'Stuurbord'}">${bib}</span>`;
 const plaats = pl => pl ? pl : '–';
 const klOrde = k => { const i = KLASSEN.indexOf(k); return i < 0 ? 99 : i; };
+// 'Live' alleen als de wedstrijd vandaag of gisteren was (lokale datum). Bleef een uitslag per vergissing
+// voorlopig staan, dan toont de site geen live-balk meer en haalt ze niet eeuwig elke minuut nieuwe gegevens op.
+const lokaleDatum = (plus = 0) => { const d = new Date(); d.setDate(d.getDate() + plus); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const isRecent = r => !!r.d && r.d >= lokaleDatum(-1) && r.d <= lokaleDatum(0);
+const isLive = r => r.voorlopig && isRecent(r);
 
 async function haal(pad) {
   const r = await fetch(pad + (pad.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
@@ -24,6 +29,11 @@ async function haal(pad) {
 
 // ---------- gegevens
 let HUIDIG = new Date().getFullYear(), DATA = null, KLAS = {}, rijen = [], renners = new Map(), perSlug = new Map(), seizoenen = [];
+let NAAMGENOTEN = new Set();
+// sleutel van een persoon: de naam (woorden gesorteerd), bij naamgenoten aangevuld met het rugnummer
+const persoonSleutel = (naam, bib) => { const k = sleutel(naam); return NAAMGENOTEN.has(k) ? k + '#' + bib : k; };
+// link naar het profiel van de renner op een rij (uitslag of klassement)
+const rSlug = (naam, bib) => { const p = renners.get(persoonSleutel(naam, bib)); return p ? p.slug : slug(naam); };
 function verwerk(index, seizoensData, klassementen) {
   HUIDIG = index.huidig;
   const races = [], rows = [];
@@ -43,6 +53,12 @@ function verwerk(index, seizoensData, klassementen) {
     const race = races[w];
     return { race, w, bib, naam, kl, club, cat, pl, ro, tijd, rt: Array.isArray(rt) ? rt : [], dag: cat === 'DAG', key: sleutel(naam), s: race.s, voorlopig: (race.klassen[kl] || {}).status === 'voorlopig' };
   });
+  // Naamgenoten: rijden er in één wedstrijd twee renners met dezelfde naam en een ander rugnummer, dan zijn het
+  // twee personen. Die naam wordt dan overal op naam + rugnummer bijgehouden (anders kwamen ze in één profiel).
+  const bibs = new Map();
+  for (const r of rijen) { const k = r.w + '|' + r.key; if (!bibs.has(k)) bibs.set(k, new Set()); bibs.get(k).add(r.bib); }
+  NAAMGENOTEN = new Set([...bibs.entries()].filter(([, b]) => b.size > 1).map(([k]) => k.slice(k.indexOf('|') + 1)));
+  for (const r of rijen) r.key = persoonSleutel(r.naam, r.bib);
   renners = new Map();
   for (const r of rijen) {
     if (!renners.has(r.key)) renners.set(r.key, { key: r.key, namen: new Map(), clubs: new Map(), rijen: [] });
@@ -52,7 +68,7 @@ function verwerk(index, seizoensData, klassementen) {
     if (r.club) p.clubs.set(r.club, (p.clubs.get(r.club) || 0) + 1);
   }
   const meest = m => [...m.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
-  for (const p of renners.values()) { p.naam = meest(p.namen); p.club = meest(p.clubs); p.slug = slug(p.naam); }
+  for (const p of renners.values()) { p.naam = meest(p.namen); p.club = meest(p.clubs); p.slug = slug(p.naam) + (p.key.includes('#') ? '-' + p.key.split('#')[1] : ''); }
   perSlug = new Map([...renners.values()].map(p => [p.slug, p]));
   seizoenen = [...new Set([HUIDIG, ...index.seizoenen, ...races.map(r => r.s)])].sort((a, b) => b - a);
 }
@@ -100,7 +116,7 @@ function tekenKop() {
   const tabs = [['renners', 'Renners'], ['wedstrijden', 'Wedstrijden'], ['klassementen', 'Klassementen']];
   document.getElementById('tabs').innerHTML = tabs.map(([k, t]) =>
     `<button type="button" role="tab" aria-selected="${k === st.tab}" data-tab="${k}">${t}</button>`).join('');
-  const live = DATA.races.find(r => r.s === HUIDIG && r.voorlopig);
+  const live = DATA.races.find(r => r.s === HUIDIG && isLive(r));
   document.getElementById('live').innerHTML = live ? `<div class="wrap"><span class="puls" aria-hidden="true"></span>
     <b>${esc(live.n)}</b>&nbsp;· uitslagen komen per reeks binnen (voorlopig) · laatst om ${uur(live.bijgewerkt)}
     <button type="button" data-live="${DATA.races.indexOf(live)}">Bekijk</button></div>` : '';
@@ -154,7 +170,7 @@ function tekenPodiums() {
   const perKl = groepeer(rijen.filter(r => r.w === w));
   return `<div><div class="eyebrow">${laatste.voorlopig ? 'Nu bezig' : 'Laatste wedstrijd'} · ${rnr(laatste.r)} · ${datum(laatste.d)}</div><h2>${esc(laatste.n)}</h2></div>
     <div class="podiums">${perKl.map(([kl, rs]) => `<div class="podium"><h3>${esc(kl)} <span class="eyebrow">${rs.length} renners${(laatste.klassen[kl] || {}).status === 'voorlopig' ? ' · <span class="chip voorlopig">voorlopig</span>' : ''}</span></h3><ol>${
-      rs.filter(r => r.pl).slice(0, 3).map(r => `<li><b>${r.pl}</b><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button>${r.dag ? '<span class="chip dag">dag</span>' : `<span class="meta">${esc(r.tijd)}</span>`}</li>`).join('')}</ol></div>`).join('')}</div>`;
+      rs.filter(r => r.pl).slice(0, 3).map(r => `<li><b>${r.pl}</b><button type="button" data-r="${rSlug(r.naam, r.bib)}">${esc(r.naam)}</button>${r.dag ? '<span class="chip dag">dag</span>' : `<span class="meta">${esc(r.tijd)}</span>`}</li>`).join('')}</ol></div>`).join('')}</div>`;
 }
 function groepeer(rs) {
   const m = new Map();
@@ -193,7 +209,7 @@ function tekenProfiel(p) {
 }
 function standVan(s, p) {
   const k = KLAS[s]; if (!k) return null;
-  return k.renners.find(x => sleutel(x.naam) === p.key) || null;
+  return k.renners.find(x => persoonSleutel(x.naam, x.bib) === p.key) || null;
 }
 
 // ---------- wedstrijden
@@ -221,7 +237,7 @@ function tabelUitslag(rs) {
   const nR = Math.max(0, ...rs.map(r => r.rt.length));
   if (!nR) return `<div class="tabel-wrap"><table><thead><tr><th>Pl.</th><th>Nr.</th><th>Naam</th><th>Club</th><th>Cat.</th><th class="r">Rondes</th><th class="r">Tijd</th></tr></thead><tbody>${
     rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td><td>${plate(r.bib, r.dag)}</td>
-      <td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button></td><td class="club">${esc(r.club)}</td>
+      <td class="naamcel"><button type="button" data-r="${rSlug(r.naam, r.bib)}">${esc(r.naam)}</button></td><td class="club">${esc(r.club)}</td>
       <td>${r.dag ? '<span class="chip dag">dag</span>' : esc(r.cat)}</td><td class="r">${r.ro || '–'}</td><td class="r">${esc(r.tijd) || '–'}</td></tr>`).join('')}</tbody></table></div>`;
   // met rondetijden: club onder de naam, een kolom per ronde; snelste ronde van de klasse in het geel
   const snelst = Math.min(...rs.flatMap(r => r.rt.map(sec)));
@@ -229,7 +245,7 @@ function tabelUitslag(rs) {
     <div class="tabel-wrap"><table class="rondes"><thead><tr><th>Pl.</th><th class="nrcol">Nr.</th><th>Naam</th><th class="catcol">Cat.</th>${
     Array.from({ length: nR }, (_, i) => `<th class="r">R${i + 1}</th>`).join('')}<th class="r">Tijd</th></tr></thead><tbody>${
     rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td><td class="nrcol">${plate(r.bib, r.dag)}</td>
-      <td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button>${r.club ? `<br><span class="meta">${esc(r.club)}</span>` : ''}</td>
+      <td class="naamcel"><button type="button" data-r="${rSlug(r.naam, r.bib)}">${esc(r.naam)}</button>${r.club ? `<br><span class="meta">${esc(r.club)}</span>` : ''}</td>
       <td class="catcol">${r.dag ? '<span class="chip dag">dag</span>' : esc(r.cat)}</td>${
       Array.from({ length: nR }, (_, i) => { const t = r.rt[i] || ''; return `<td class="r ronde">${t && sec(t) === snelst ? `<span class="snelst">${esc(t)}</span>` : (esc(t) || '')}</td>`; }).join('')}
       <td class="r tijd">${esc(r.tijd) || '–'}</td></tr>`).join('')}</tbody></table></div>`;
@@ -273,7 +289,7 @@ function tekenKlassementen() {
     return new Set(w.slice(0, weg).map(x => x.i));
   };
   const rij = r => { const tn = telNiet(r); return `<tr class="${!isKamp || r.officieel ? '' : 'onofficieel'}"><td class="pl ${rang(r) && rang(r) <= 3 ? 'p' + rang(r) : ''}">${rang(r) || '–'}</td>
-    <td class="nrcol">${plate(r.bib)}</td><td class="naamcel"><button type="button" data-r="${slug(r.naam)}">${esc(r.naam)}</button><br><span class="meta">${esc(r.club)}</span></td>${
+    <td class="nrcol">${plate(r.bib)}</td><td class="naamcel"><button type="button" data-r="${rSlug(r.naam, r.bib)}">${esc(r.naam)}</button><br><span class="meta">${esc(r.club)}</span></td>${
     Array.from({ length: n }, (_, i) => { const v = r.w[i]; return `<td class="r${tn.has(i) ? ' telt-niet' : ''}${v === 50 ? ' wissel' : ''}">${v ?? '–'}</td>`; }).join('')}
     <td class="r totaal">${totaal(r)}</td></tr>`; };
   const off = isKamp ? rs.filter(r => r.officieel) : rs, nietOff = isKamp ? rs.filter(r => !r.officieel) : [];
@@ -309,8 +325,8 @@ app.addEventListener('click', e => {
 // automatisch vernieuwen terwijl een wedstrijd bezig is (zonder het zoekveld te storen)
 async function ververs() {
   if (document.hidden) return;
-  const bezig = DATA && DATA.races.some(r => r.s === HUIDIG && r.voorlopig);
-  const vandaag = new Date().toISOString().slice(0, 10);
+  const bezig = DATA && DATA.races.some(r => r.s === HUIDIG && isLive(r));
+  const vandaag = lokaleDatum(0);   // lokale datum (vroeger UTC: rond middernacht een dag ernaast)
   if (!bezig && !(DATA && DATA.races.some(r => r.d === vandaag))) return;
   try {
     const oudeW = st.wedstrijd != null ? DATA.races[st.wedstrijd] : null;
