@@ -193,7 +193,7 @@ function tekenProfiel(p) {
     return `<section class="seizoensblok${nu ? '' : ' vorig'}">${titel}
       <div class="cijfers"><div class="cijfer"><b>${new Set(rs.map(r => r.race.r)).size}</b><span>wedstrijden</span></div>
         <div class="cijfer"><b>${beste}</b><span>beste plaats</span></div>
-        <div class="cijfer"><b>${stand ? (stand.kampRang || '–') : top3}</b><span>${stand ? 'kampioenschap ' + esc(stand.kl) : 'keer podium'}</span></div>
+        <div class="cijfer"><b>${stand ? (stand.kampRang || '–') : top3}</b><span>${stand ? 'kampioenschap ' + esc(stand.kl) + (KLAS[s] && KLAS[s].naWedstrijd ? ' · na W' + KLAS[s].naWedstrijd : '') : 'keer podium'}</span></div>
         <div class="cijfer${dag ? ' dag' : ''}"><b>${dag}</b><span>als dagrenner</span></div></div>
       <div class="tabel-wrap"><table><thead><tr><th>Pl.</th><th>Wedstrijd</th><th>Klasse</th><th>Nr.</th><th class="r">Rondes</th><th class="r">Tijd</th><th></th></tr></thead><tbody>${
         rs.map(r => `<tr class="${r.dag ? 'dagrij' : ''}"><td class="pl ${r.pl && r.pl <= 3 ? 'p' + r.pl : ''}">${plaats(r.pl)}</td>
@@ -255,7 +255,11 @@ function tabelUitslag(rs) {
 const STANDEN = [['kampioenschap', 'Kampioenschap'], ['regelmaat', 'Regelmatigheid'], ['team', 'Teamklassement']];
 function tekenKlassementen() {
   const k = KLAS[st.seizoen];
-  const kop = `<div><h1>Klassementen ${st.seizoen}</h1>${k ? `<p class="sub">Stand na wedstrijd ${k.naWedstrijd} (${esc(k.plaats)}) · bijgewerkt ${datum((k.bijgewerkt || '').slice(0, 10))}</p>` : ''}</div>
+  // Versie van het klassement: na welke wedstrijd. Een latere wedstrijd (voorlopige uitslag van de wedstrijddag)
+  // zit er pas in na de verwerking in de week na de wedstrijd: dat staat er dan uitdrukkelijk bij.
+  const nog = k ? DATA.races.filter(r => r.s === st.seizoen && r.u && r.r > (k.naWedstrijd || 0) && r.c > 0) : [];
+  const nogTekst = nog.length ? `<div class="melding"><b>Nog niet in dit klassement:</b> ${nog.map(r => `wedstrijd ${r.r} (${esc(r.n)})${r.voorlopig ? ', voorlopige uitslag' : ''}`).join('; ')}. Het klassement wordt bijgewerkt in de week na de wedstrijd.</div>` : '';
+  const kop = `<div><h1>Klassementen ${st.seizoen}</h1>${k ? `<p class="sub"><b>Klassement na wedstrijd ${k.naWedstrijd}</b> (${esc(k.plaats)}) · bijgewerkt ${datum((k.bijgewerkt || '').slice(0, 10))}</p>` : ''}</div>${nogTekst}
     <div class="soorten" role="tablist">${STANDEN.map(([s, t]) => `<button type="button" role="tab" data-stand="${s}" aria-selected="${s === st.stand}">${t}</button>`).join('')}</div>`;
   if (!k) {
     app.innerHTML = kop + `<div class="leeg"><h3>Nog geen klassementen voor ${st.seizoen}</h3>De klassementen komen hier na de verwerking van de eerste wedstrijd.</div>`;
